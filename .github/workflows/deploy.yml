@@ -32,7 +32,7 @@ jobs:
         sed -i 's|src="/assets/|src="./assets/|' dist/index.html
 
     - name: Upload via FTP with clean option
-      uses: sebastianpopp/ftp-action@v1.2.0
+      uses: sebastianpopp/ftp-action@v1
       with:
         host: ${{ secrets.FTP_HOST }}
         port: 3000
