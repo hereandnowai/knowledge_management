@@ -41,8 +41,9 @@ jobs:
         port: 3000
         protocol: ftp
         local_dir: dist
-        remote_dir: /apps.hereandnowai.com/apps/
+        remote_dir: /apps.hereandnowai.com/apps/knowledge_management
         create_remote_dir: true
         debug: true
         timeout: 60
         max_retries: 3
+        verify_cert: false
