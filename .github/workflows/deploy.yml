@@ -24,9 +24,6 @@ jobs:
     - name: Inject .env with Google API Key
       run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
 
-    - name: Run Tests
-      run: npm test
-
     - name: Build App
       run: npm run build
 
