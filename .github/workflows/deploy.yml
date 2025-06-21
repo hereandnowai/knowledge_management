@@ -41,4 +41,3 @@ jobs:
         protocol: ftp
         local-dir: ./dist/
         server-dir: /${{ github.repository }}/
-        delete: true
