@@ -31,15 +31,18 @@ jobs:
       run: |
         sudo apt-get update && sudo apt-get install -y lftp
         
-        # Connecting to your server. Based on your screenshot, port 3000 is correct for you.
-        lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} -p 3000 ${{ secrets.FTP_HOST }} <<EOF
+        # FIX: Added the '-d' flag for a full debug log
+        # This will show the exact reason for the connection failure
+        lftp -d -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} -p 3000 ${{ secrets.FTP_HOST }} <<EOF
         set ftp:ssl-allow no
+        
+        # Test command to see if we are connected before mirroring
+        ls
 
-        # FIX: Using the full, correct path as shown in your FileZilla screenshot.
-        # This creates the final app directory if it doesn't exist.
+        # Create the remote directory if it doesn't exist
         mkdir -p /apps.hereandnowai.com/apps/${{ github.event.repository.name }}
         
-        # Mirror the contents of the local 'dist' folder to the correct remote directory.
+        # Mirror the contents of the local 'dist' folder to the correct remote directory
         mirror -R --delete --verbose ./dist /apps.hereandnowai.com/apps/${{ github.event.repository.name }}
         
         bye
