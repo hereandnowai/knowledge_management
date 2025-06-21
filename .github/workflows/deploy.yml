@@ -52,4 +52,4 @@ jobs:
         timeout: 60
         max_retries: 3
         verify_cert: false
-        script: ""
+        script: mirror -R ./dist /apps.hereandnowai.com/apps/knowledge_management --verbose
