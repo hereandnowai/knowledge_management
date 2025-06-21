@@ -1,49 +1,51 @@
-name: Build and Deploy to FTP
+name: Ultimate FTP Connection Debugger
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
 
 jobs:
-  build-and-deploy:
+  debug-ftp-connection:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
-
-    - name: Install Dependencies
-      run: npm install
-
-    - name: Inject .env with Google API Key
-      run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
-
-    - name: Build App
-      run: npm run build
-
-    - name: Upload to FTP
+    - name: Get the IP Address of the Runner
+      id: ip
       run: |
-        sudo apt-get update && sudo apt-get install -y lftp
-        
-        # FIX: Added the '-d' flag for a full debug log
-        # This will show the exact reason for the connection failure
+        # Find the runner's public IP and save it to a variable
+        RUNNER_IP=$(curl -s ifconfig.me)
+        echo "Runner's Public IP: $RUNNER_IP"
+        echo "ip=$RUNNER_IP" >> $GITHUB_OUTPUT
+
+    - name: Test Basic Connectivity to Port 3000
+      run: |
+        echo "Attempting to connect to ${{ secrets.FTP_HOST }} on port 3000..."
+        # This will try to connect and immediately exit.
+        # If this hangs or fails, the port is not reachable from this IP.
+        timeout 10 telnet ${{ secrets.FTP_HOST }} 3000 || echo "Telnet connection failed. Port is likely blocked or server is not listening."
+
+    - name: Install lftp
+      run: sudo apt-get update && sudo apt-get install -y lftp
+
+    - name: Attempt FTP Connection with Forced Passive Mode
+      run: |
         lftp -d -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} -p 3000 ${{ secrets.FTP_HOST }} <<EOF
+        # --- CRITICAL DEBUGGING SETTINGS ---
+        # Force Passive Mode, which is required for NAT/Firewalls
+        set ftp:passive-mode on
+        
+        # Disable SSL/TLS verification as you use plain FTP
         set ftp:ssl-allow no
         
-        # Test command to see if we are connected before mirroring
-        ls
-
-        # Create the remote directory if it doesn't exist
-        mkdir -p /apps.hereandnowai.com/apps/${{ github.event.repository.name }}
+        # Increase debug level to maximum
+        set ftp:debug 10
         
-        # Mirror the contents of the local 'dist' folder to the correct remote directory
-        mirror -R --delete --verbose ./dist /apps.hereandnowai.com/apps/${{ github.event.repository.name }}
+        # Set a reasonable timeout
+        set net:timeout 15
+        set net:max-retries 2
+
+        # --- TEST COMMAND ---
+        # If this command works, the connection is successful.
+        ls
         
         bye
         EOF
