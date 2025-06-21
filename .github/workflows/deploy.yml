@@ -1,0 +1,43 @@
+name: Build and Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Create .env file with secret
+      run: echo "GEMINI_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > .env
+
+    - name: Build App
+      run: npm run build
+
+    - name: Modify index.html for subfolder deployment
+      run: |
+        sed -i 's|src="/assets/|src="./assets/|' dist/index.html
+
+    - name: Upload via FTP with clean option
+      uses: sebastianpopp/ftp-action@v1.2.0
+      with:
+        host: ${{ secrets.FTP_HOST }}
+        port: 3000
+        user: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        localDir: dist
+        remoteDir: /knowledge_management
+        options: "--delete"
