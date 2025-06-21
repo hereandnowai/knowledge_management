@@ -27,17 +27,10 @@ jobs:
     - name: Build App
       run: npm run build
 
-    - name: Modify index.html
+    - name: Upload to FTP (port 3000) using lftp
       run: |
-        sed -i 's|src="/assets/|src="./assets/|' dist/index.html
-
-    - name: Deploy via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 3000
-        protocol: ftp
-        local-dir: ./dist/
-        server-dir: /${{ github.repository }}/
+        sudo apt-get update && sudo apt-get install -y lftp
+        lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} -p 3000 ${{ secrets.FTP_HOST }} <<EOF
+        set ftp:ssl-allow no
+        mirror -R ./dist /hereandnowai/knowledge_management --verbose
+        bye
