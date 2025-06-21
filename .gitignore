@@ -1,0 +1,32 @@
+# Dependencies
+/node_modules
+
+# Build output folder
+/dist
+/build
+/.output
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Environment variables - IMPORTANT for security
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Editor & IDE directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# System files
+.DS_Store
