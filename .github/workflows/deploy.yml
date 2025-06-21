@@ -1,17 +1,17 @@
-name: Build and Deploy to FTP
+name: Build, Test, Deploy via FTP
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -21,23 +21,27 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    - name: Create .env file with secret
-      run: echo "GEMINI_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > .env
+    - name: Inject .env with Google API Key
+      run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+
+    - name: Run Tests
+      run: npm test
 
     - name: Build App
       run: npm run build
 
-    - name: Modify index.html for subfolder deployment
+    - name: Modify index.html
       run: |
         sed -i 's|src="/assets/|src="./assets/|' dist/index.html
 
-    - name: Upload via FTP with clean option
-      uses: sebastianpopp/ftp-action@v1
+    - name: Deploy via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        host: ${{ secrets.FTP_HOST }}
-        port: 3000
-        user: ${{ secrets.FTP_USERNAME }}
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        localDir: dist
-        remoteDir: /knowledge_management
-        options: "--delete"
+        port: 3000
+        protocol: ftp
+        local-dir: ./dist/
+        server-dir: /${{ github.repository }}/
+        delete: true
