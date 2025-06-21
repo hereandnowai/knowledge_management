@@ -32,6 +32,11 @@ jobs:
       run: |
         sed -i 's|src="/assets/|src="./assets/|' dist/index.html
 
+    - name: List files in dist
+      run: |
+        echo "Checking contents of dist directory:"
+        ls -l dist
+
     - name: FTP Deploy using lftp
       uses: pontago/lftp-deploy-action@v1.0.1
       with:
