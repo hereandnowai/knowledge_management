@@ -47,6 +47,7 @@ jobs:
         protocol: ftp
         local_dir: dist
         remote_dir: /apps.hereandnowai.com/apps/knowledge_management
+        script: ""
         create_remote_dir: true
         debug: true
         timeout: 60
