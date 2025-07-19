@@ -8,7 +8,7 @@ if (!API_KEY) {
 
 const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
 
-const GEN_MODEL = 'gemini-2.5-flash-preview-04-17';
+const GEN_MODEL = 'gemini-2.5';
 
 export const generateText = async (prompt: string): Promise<string> => {
   if (!ai) return "AI service is unavailable (API key missing).";

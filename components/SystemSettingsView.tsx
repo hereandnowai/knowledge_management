@@ -7,7 +7,7 @@ import Modal from './common/Modal'; // For confirmation
 import { isAIServiceAvailable } from '../services/geminiService'; // To check AI service status
 
 // Helper to get the current AI model name (simplified)
-const getAIModelName = () => 'gemini-2.5-flash-preview-04-17'; // As per geminiService
+const getAIModelName = () => 'gemini-2.5-flash'; // As per geminiService
 
 interface SystemSettingsViewProps {
   currentTheme: Theme;
